@@ -28,8 +28,8 @@ OPTION(HASH_SIZE_32 OFF)
 
 
 # Compiler flags for the different targets
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=native -mtune=native -std=c++14 -fPIC -Wall -Wextra -Wno-psabi -fno-omit-frame-pointer -Wno-unknown-pragmas ")
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fPIC -Wall -Wextra -fno-omit-frame-pointer -march=native -fdiagnostics-color ")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=native -mtune=native -std=c++14 -fPIC -Wall -Wextra -Wno-psabi -fno-omit-frame-pointer -Wno-unknown-pragmas -Wno-error=maybe-uninitialized -Wno-error=deprecated-copy")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fPIC -Wall -Wextra -fno-omit-frame-pointer -march=native -fdiagnostics-color -Wno-error=maybe-uninitialized -Wno-error=deprecated-copy")
 
 
 if(LINUX)
@@ -117,7 +117,7 @@ ELSE(DATADIR)
 ENDIF(DATADIR)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/3rdparty/")
-find_package(TBB)
+find_package(TBB REQUIRED)
 include_directories(${TBB_INCLUDE_DIRS})
 
 
@@ -209,7 +209,7 @@ target_include_directories(tpch PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<INSTALL_INTERFACE:include>
     PRIVATE src)
-target_link_libraries(tpch benchmark_config pthread hyper ${TBB_LIBRARIES} vectorwise common)
+target_link_libraries(tpch benchmark_config pthread hyper TBB::tbb vectorwise common)
 
 add_executable(run_tpch
   ${HYPER_TRANSLATORS}
@@ -229,7 +229,7 @@ target_include_directories(ssb PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<INSTALL_INTERFACE:include>
     PRIVATE src)
-target_link_libraries(ssb benchmark_config pthread hyper ${TBB_LIBRARIES} vectorwise common)
+target_link_libraries(ssb benchmark_config pthread hyper TBB::tbb vectorwise common)
 
 add_executable(run_ssb
   ${HYPER_TRANSLATORS}
@@ -248,7 +248,7 @@ target_include_directories(run_prim PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<INSTALL_INTERFACE:include>
     PRIVATE src)
-target_link_libraries(run_prim vectorwise common ${TBB_LIBRARIES}  ${JEVENTSLIB})
+target_link_libraries(run_prim vectorwise common TBB::tbb  ${JEVENTSLIB})
 
 # Enable tests
 enable_testing()
@@ -305,7 +305,7 @@ if(AVX512EXPERIMENTS)
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<INSTALL_INTERFACE:include>
     PRIVATE src)
-  target_link_libraries(run_simd vectorwise common ${TBB_LIBRARIES}  ${JEVENTSLIB})
+  target_link_libraries(run_simd vectorwise common TBB::tbb  ${JEVENTSLIB})
 
   add_executable(run_join
     src/benchmarks/primitives/joinmicrobench.cpp
@@ -317,5 +317,5 @@ if(AVX512EXPERIMENTS)
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<INSTALL_INTERFACE:include>
     PRIVATE src)
-  target_link_libraries(run_join vectorwise common ${TBB_LIBRARIES}  ${JEVENTSLIB})
+  target_link_libraries(run_join vectorwise common TBB::tbb  ${JEVENTSLIB})
 endif(AVX512EXPERIMENTS)
